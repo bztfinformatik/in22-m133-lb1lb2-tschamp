@@ -1,5 +1,7 @@
 # coding: utf-8
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from model.ACCESS import ACCESS
 
 
 db = SQLAlchemy()
@@ -11,7 +13,6 @@ class Productline(db.Model):
     textDescription = db.Column(db.String(4000))
     htmlDescription = db.Column(db.String)
     #image = db.Column(db.MEDIUMBLOB)
-
 
 
 class Product(db.Model):
@@ -28,3 +29,18 @@ class Product(db.Model):
     MSRP = db.Column(db.Numeric(10, 2), nullable=False)
 
     productline = db.relationship('Productline', primaryjoin='Product.productLine == Productline.productLine', backref='products')
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(80), nullable=False)
+    access = db.Column(db.SmallInteger, nullable=False, default=0)
+
+    def is_admin(self):
+        return self.access == ACCESS['admin']
+
+    def is_user(self):
+        return self.access == ACCESS['user']
+
+    def allowed(self, access_level):
+        return self.access >= access_level

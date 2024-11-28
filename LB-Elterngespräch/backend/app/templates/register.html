@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}
+    register
+{% endblock %}
+
+{% block body %}
+<div class="container mt-3">
+
+    <h2 class="text-center text-primary">Register</h2>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">UserName</label>
+            {{ form.username(class_='form-control') }}
+          </div>
+          <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Password</label>
+            {{ form.password(class_='form-control') }}
+          </div>
+
+        {{ form.submit(class_='btn btn-primary')}}
+    </form>
+    
+    
+    <p>Already have an account? <a class="btn btn-outline-primary" href="/login">Login</a></p>
+</div>
+{% endblock %}
