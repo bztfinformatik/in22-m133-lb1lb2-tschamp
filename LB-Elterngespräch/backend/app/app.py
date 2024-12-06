@@ -6,6 +6,7 @@ from controllers.index import index_blueprint
 from controllers.products import products_blueprint
 from controllers.help import help_blueprint
 from controllers.user import users_blueprint
+from controllers.termine import termine_blueprint
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from model.models import User
 from flask_bcrypt import Bcrypt
@@ -40,4 +41,5 @@ app.register_blueprint(index_blueprint)
 app.register_blueprint(products_blueprint)
 app.register_blueprint(users_blueprint)
 app.register_blueprint(help_blueprint)
+app.register_blueprint(termine_blueprint)
 

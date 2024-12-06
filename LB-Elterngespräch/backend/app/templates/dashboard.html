@@ -6,9 +6,24 @@
 
 {% block body %}
 <div class="container mt-3">
-    <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
-        <strong>logged in</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>
+    <a href="/termin-verinbaren" class="btn termin-verinbaren">Termin Vereinbaren</a>
+    <a href="/termin-verschieben" class="btn termin-verschieben">Termin Verschieben</a>
+    <a href="/termin-anzeigen" class="btn termin-anzeigen">Termin Anzeigen</a>    
 </div>
+
+<style>
+    .btn {
+      display: inline-block; /* Button-ähnliches Verhalten */
+      padding: 10px 20px;
+      background-color: #007bff; /* Bootstrap blaue Button-Farbe */
+      color: white;
+      text-decoration: none; /* Entfernt die Unterstreichung */
+      border-radius: 5px;
+      margin: 5px; /* Abstand zwischen den Buttons */
+    }
+  
+    .btn:hover {
+      background-color: #0056b3; /* Dunklere Farbe beim Hover */
+    }
+  </style>
 {% endblock %}
