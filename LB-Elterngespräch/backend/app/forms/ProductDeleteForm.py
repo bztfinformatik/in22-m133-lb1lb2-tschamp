@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms.fields.simple import StringField
-from wtforms import validators
+from wtforms import StringField, validators
+from flask_wtf import FlaskForm
+
 
 
 class ProductDeleteForm(FlaskForm):

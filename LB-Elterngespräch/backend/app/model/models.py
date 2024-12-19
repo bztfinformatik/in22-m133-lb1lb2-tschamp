@@ -38,9 +38,12 @@ class User(db.Model, UserMixin):
 
     def is_admin(self):
         return self.access == ACCESS['admin']
+    
+    def is_teacher(self):
+        return self.access == ACCESS['lehrer']
 
-    def is_user(self):
-        return self.access == ACCESS['user']
+    def is_guest(self):
+        return self.access == ACCESS['guest']
 
     def allowed(self, access_level):
         return self.access >= access_level

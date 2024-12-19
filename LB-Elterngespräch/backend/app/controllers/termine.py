@@ -1,119 +1,113 @@
-import sqlalchemy
-import sqlalchemy.orm
-
-from flask import redirect, request, flash
-from flask.templating import render_template
-from flask import Blueprint
+from flask import redirect, request, flash, render_template, Blueprint
+from flask_login import login_required, current_user
 from forms.ElterngespraechTerminForm import ElterngespraechTerminForm
 from forms.ElterngespraechTerminDeleteForm import ElterngespraechTerminDeleteForm
 from model.models import ElterngespraechTermine, User, db
 
 termine_blueprint = Blueprint('termine_blueprint', __name__)
 
+# Restrict access to admin users
+def admin_required(f):
+    @login_required
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_admin():
+            flash("You do not have permission to access this page.", "danger")
+            return redirect("/")
+        return f(*args, **kwargs)
+    return decorated_function
 
 @termine_blueprint.route("/termine")
+@login_required
+@admin_required
 def termine():
-    # Session Autocomplete
-    session: sqlalchemy.orm.Session = db.session
-
-    # Alle Termine laden
+    session = db.session
     termine = session.query(ElterngespraechTermine).order_by(ElterngespraechTermine.datum, ElterngespraechTermine.uhrzeit).all()
-
     return render_template("termine/termine.html", termine=termine)
 
-
 @termine_blueprint.route("/termine/add", methods=["GET", "POST"])
+@login_required
+@admin_required
 def termine_add():
-    session: sqlalchemy.orm.scoping.scoped_session = db.session
-
+    session = db.session
     add_termin_form = ElterngespraechTerminForm()
-
-    # Schüler und Lehrer für Auswahlfeld laden
-    users = session.query(User).order_by(User.name).all()
-    user_choices = [(user.id, user.name) for user in users]
+    users = session.query(User).order_by(User.username).all()
+    user_choices = [(user.id, user.username) for user in users]
     add_termin_form.schueler_name.choices = user_choices
     add_termin_form.lehrer_id.choices = user_choices
 
     if request.method == 'POST':
         if add_termin_form.validate_on_submit():
-            new_termin = ElterngespraechTermine()
-
-            new_termin.schueler_name = add_termin_form.schueler_name.data
-            new_termin.lehrer_id = add_termin_form.lehrer_id.data
-            new_termin.datum = add_termin_form.datum.data
-            new_termin.uhrzeit = add_termin_form.uhrzeit.data
-            new_termin.dauer_minuten = add_termin_form.dauer_minuten.data
-            new_termin.status = add_termin_form.status.data
-            new_termin.notizen = add_termin_form.notizen.data
-            new_termin.raum = add_termin_form.raum.data
-
+            new_termin = ElterngespraechTermine(
+                schueler_name=add_termin_form.schueler_name.data,
+                lehrer_id=add_termin_form.lehrer_id.data,
+                datum=add_termin_form.datum.data,
+                uhrzeit=add_termin_form.uhrzeit.data,
+                dauer_minuten=add_termin_form.dauer_minuten.data,
+                status=add_termin_form.status.data,
+                notizen=add_termin_form.notizen.data,
+                raum=add_termin_form.raum.data
+            )
             db.session.add(new_termin)
             db.session.commit()
-
+            flash("Termin added successfully!", "success")
             return redirect("/termine")
-        else:
-            return render_template("../templates/termin/termin_add.html", users=users, form=add_termin_form)
-    else:
-        return render_template("../templates/termin/termin_add.html", users=users, form=add_termin_form)
-
+    return render_template("../templates/termin/termin_add.html", users=users, form=add_termin_form)
 
 @termine_blueprint.route("/termine/edit", methods=["GET", "POST"])
+@login_required
+@admin_required
 def termine_edit():
-    session: sqlalchemy.orm.scoping.scoped_session = db.session
-
+    session = db.session
     edit_termin_form = ElterngespraechTerminForm()
-
-    # Schüler und Lehrer für Auswahlfeld laden
-    users = session.query(User).order_by(User.name).all()
-    user_choices = [(user.id, user.name) for user in users]
+    users = session.query(User).order_by(User.username).all()
+    user_choices = [(user.id, user.username) for user in users]
     edit_termin_form.schueler_name.choices = user_choices
     edit_termin_form.lehrer_id.choices = user_choices
 
-    termin_id = request.args["termin_id"]
+    termin_id = request.args.get("termin_id")
+    termin_to_edit = session.query(ElterngespraechTermine).filter_by(termin_id=termin_id).first()
 
-    # Termin laden
-    termin_to_edit = session.query(ElterngespraechTermine).filter(
-        ElterngespraechTermine.termin_id == termin_id).first()
+    if not termin_to_edit:
+        flash("Termin not found.", "danger")
+        return redirect("/termine")
 
-    if request.method == "POST":
-        if edit_termin_form.validate_on_submit():
-            termin_to_edit.schueler_name = edit_termin_form.schueler_name.data
-            termin_to_edit.lehrer_id = edit_termin_form.lehrer_id.data
-            termin_to_edit.datum = edit_termin_form.datum.data
-            termin_to_edit.uhrzeit = edit_termin_form.uhrzeit.data
-            termin_to_edit.dauer_minuten = edit_termin_form.dauer_minuten.data
-            termin_to_edit.status = edit_termin_form.status.data
-            termin_to_edit.notizen = edit_termin_form.notizen.data
-            termin_to_edit.raum = edit_termin_form.raum.data
+    if request.method == "POST" and edit_termin_form.validate_on_submit():
+        termin_to_edit.schueler_name = edit_termin_form.schueler_name.data
+        termin_to_edit.lehrer_id = edit_termin_form.lehrer_id.data
+        termin_to_edit.datum = edit_termin_form.datum.data
+        termin_to_edit.uhrzeit = edit_termin_form.uhrzeit.data
+        termin_to_edit.dauer_minuten = edit_termin_form.dauer_minuten.data
+        termin_to_edit.status = edit_termin_form.status.data
+        termin_to_edit.notizen = edit_termin_form.notizen.data
+        termin_to_edit.raum = edit_termin_form.raum.data
 
-            db.session.commit()
-            return redirect("/termine")
-    else:
-        edit_termin_form.schueler_name.data = termin_to_edit.schueler_name
-        edit_termin_form.lehrer_id.data = termin_to_edit.lehrer_id
-        edit_termin_form.datum.data = termin_to_edit.datum
-        edit_termin_form.uhrzeit.data = termin_to_edit.uhrzeit
-        edit_termin_form.dauer_minuten.data = termin_to_edit.dauer_minuten
-        edit_termin_form.status.data = termin_to_edit.status
-        edit_termin_form.notizen.data = termin_to_edit.notizen
-        edit_termin_form.raum.data = termin_to_edit.raum
+        db.session.commit()
+        flash("Termin updated successfully!", "success")
+        return redirect("/termine")
 
-        return render_template("termine/termine_edit.html", users=users, form=edit_termin_form)
+    edit_termin_form.schueler_name.data = termin_to_edit.schueler_name
+    edit_termin_form.lehrer_id.data = termin_to_edit.lehrer_id
+    edit_termin_form.datum.data = termin_to_edit.datum
+    edit_termin_form.uhrzeit.data = termin_to_edit.uhrzeit
+    edit_termin_form.dauer_minuten.data = termin_to_edit.dauer_minuten
+    edit_termin_form.status.data = termin_to_edit.status
+    edit_termin_form.notizen.data = termin_to_edit.notizen
+    edit_termin_form.raum.data = termin_to_edit.raum
 
+    return render_template("termine/termine_edit.html", users=users, form=edit_termin_form)
 
 @termine_blueprint.route("/termine/delete", methods=["POST"])
+@login_required
+@admin_required
 def delete_termin():
     delete_termin_form = ElterngespraechTerminDeleteForm()
     if delete_termin_form.validate_on_submit():
         termin_id_to_delete = delete_termin_form.termin_id.data
-        termin_to_delete = db.session.query(ElterngespraechTermine).filter(
-            ElterngespraechTermine.termin_id == termin_id_to_delete
-        )
-        termin_to_delete.delete()
-        db.session.commit()
-    else:
-        print("Fatal Error")
-
-    flash(f"Termin with ID {termin_id_to_delete} has been deleted")
-
+        termin_to_delete = db.session.query(ElterngespraechTermine).filter_by(termin_id=termin_id_to_delete).first()
+        if termin_to_delete:
+            db.session.delete(termin_to_delete)
+            db.session.commit()
+            flash(f"Termin with ID {termin_id_to_delete} has been deleted.", "success")
+        else:
+            flash("Termin not found.", "danger")
     return redirect("/termine")

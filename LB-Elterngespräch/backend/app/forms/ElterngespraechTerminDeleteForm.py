@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms.fields.simple import IntegerField
+from wtforms import IntegerField
 from wtforms import validators
 
 
