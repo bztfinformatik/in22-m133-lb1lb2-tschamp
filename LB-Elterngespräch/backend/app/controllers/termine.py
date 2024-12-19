@@ -3,11 +3,14 @@ from flask_login import login_required, current_user
 from forms.ElterngespraechTerminForm import ElterngespraechTerminForm
 from forms.ElterngespraechTerminDeleteForm import ElterngespraechTerminDeleteForm
 from model.models import ElterngespraechTermine, User, db
+from functools import wraps
 
 termine_blueprint = Blueprint('termine_blueprint', __name__)
 
 # Restrict access to admin users
+"""
 def admin_required(f):
+    @wraps(f)
     @login_required
     def decorated_function(*args, **kwargs):
         if not current_user.is_admin():
@@ -15,18 +18,19 @@ def admin_required(f):
             return redirect("/")
         return f(*args, **kwargs)
     return decorated_function
+"""
 
 @termine_blueprint.route("/termine")
 @login_required
-@admin_required
+#@admin_required
 def termine():
     session = db.session
     termine = session.query(ElterngespraechTermine).order_by(ElterngespraechTermine.datum, ElterngespraechTermine.uhrzeit).all()
-    return render_template("termine/termine.html", termine=termine)
+    return render_template("termin/termine.html", termine=termine)
 
 @termine_blueprint.route("/termine/add", methods=["GET", "POST"])
 @login_required
-@admin_required
+#@admin_required
 def termine_add():
     session = db.session
     add_termin_form = ElterngespraechTerminForm()
@@ -55,7 +59,7 @@ def termine_add():
 
 @termine_blueprint.route("/termine/edit", methods=["GET", "POST"])
 @login_required
-@admin_required
+#@admin_required
 def termine_edit():
     session = db.session
     edit_termin_form = ElterngespraechTerminForm()
@@ -98,7 +102,7 @@ def termine_edit():
 
 @termine_blueprint.route("/termine/delete", methods=["POST"])
 @login_required
-@admin_required
+#@admin_required
 def delete_termin():
     delete_termin_form = ElterngespraechTerminDeleteForm()
     if delete_termin_form.validate_on_submit():
@@ -111,3 +115,29 @@ def delete_termin():
         else:
             flash("Termin not found.", "danger")
     return redirect("/termine")
+
+@termine_blueprint.route("/termine/claim", methods=["POST"])
+@login_required
+def claim_termin():
+    session = db.session
+    termin_id = request.form.get("termin_id")
+    
+    # Find the specified appointment
+    termin_to_claim = session.query(ElterngespraechTermine).filter_by(termin_id=termin_id).first()
+
+    if not termin_to_claim:
+        flash("Termin not found.", "danger")
+        return redirect("/termine")
+
+    if termin_to_claim.status == "claimed":
+        flash("This termin is already claimed.", "warning")
+        return redirect("/termine")
+
+    # Update the status and assign the current user as the claimer
+    termin_to_claim.status = "claimed"
+    termin_to_claim.schueler_name = current_user.id  # Assuming current_user.id is the user's unique identifier
+    
+    session.commit()
+    flash(f"Termin {termin_id} has been successfully claimed!", "success")
+    return redirect("/termine")
+

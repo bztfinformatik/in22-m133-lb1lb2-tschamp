@@ -1,51 +1,34 @@
 {% extends 'base.html' %}
 
 {% block body %}
-
-<h2>Neuen Elterngesprächs-Termin Hinzufügen</h2>
+<h2>Add New Appointment</h2>
 
 <form method="post">
     {{ form.csrf_token }}
 
-    {% if not current_user.is_authenticated %}
-        <div class="alert alert-danger">
-            <strong>Fehler:</strong> Sie sind nicht berechtigt, diese Seite anzuzeigen. Bitte melden Sie sich an.
-        </div>
-        <a href="/login" class="btn btn-primary">Zum Login</a>
-        {% return %}
-    {% endif %}
+    <div class="mb-3">
+        <label for="lehrer_id" class="form-label">Lehrer ID</label>
+        {{ form.lehrer_id(class_="form-control") }}
+    </div>
 
-    {% if not current_user.allowed(ACCESS['admin']) %}
-        <div class="alert alert-warning">
-            <strong>Warnung:</strong> Nur Administratoren können Termine hinzufügen.
-        </div>
-        {% return %}
-    {% endif %}
-
-    <!-- Form for adding a new Elterngesprächs-Termin -->
     <div class="mb-3">
         <label for="schueler_name" class="form-label">Schüler Name</label>
         {{ form.schueler_name(class_="form-control") }}
     </div>
 
     <div class="mb-3">
-        <label for="lehrer_id" class="form-label">Lehrer</label>
-        {{ form.lehrer_id(class_="form-control") }}
-    </div>
-
-    <div class="mb-3">
         <label for="datum" class="form-label">Datum</label>
-        {{ form.datum(class_="form-control", type="date") }}
+        {{ form.datum(class_="form-control") }}
     </div>
 
     <div class="mb-3">
         <label for="uhrzeit" class="form-label">Uhrzeit</label>
-        {{ form.uhrzeit(class_="form-control", type="time") }}
+        {{ form.uhrzeit(class_="form-control") }}
     </div>
 
     <div class="mb-3">
-        <label for="dauer_minuten" class="form-label">Dauer (in Minuten)</label>
-        {{ form.dauer_minuten(class_="form-control", type="number") }}
+        <label for="dauer_minuten" class="form-label">Dauer (Minuten)</label>
+        {{ form.dauer_minuten(class_="form-control") }}
     </div>
 
     <div class="mb-3">
@@ -54,16 +37,16 @@
     </div>
 
     <div class="mb-3">
-        <label for="notizen" class="form-label">Notizen</label>
-        {{ form.notizen(class_="form-control", rows="3") }}
-    </div>
-
-    <div class="mb-3">
         <label for="raum" class="form-label">Raum</label>
         {{ form.raum(class_="form-control") }}
     </div>
 
-    <button type="submit" class="btn btn-primary">Speichern</button>
+    <div class="mb-3">
+        <label for="notizen" class="form-label">Notizen</label>
+        {{ form.notizen(class_="form-control") }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 
 {% endblock %}

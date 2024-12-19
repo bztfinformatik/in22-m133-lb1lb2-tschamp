@@ -51,13 +51,12 @@ class User(db.Model, UserMixin):
 
 class ElterngespraechTermine(db.Model):
     __tablename__ = 'elterngespraech_termine'
-
-    termin_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    termin_id = db.Column(db.Integer, primary_key=True)
+    lehrer_id = db.Column(db.Integer, nullable=False)
     schueler_name = db.Column(db.String(30), nullable=False)
-    lehrer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     datum = db.Column(db.Date, nullable=False)
     uhrzeit = db.Column(db.Time, nullable=False)
     dauer_minuten = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(20), nullable=False)
+    raum = db.Column(db.String(20), nullable=False)
     notizen = db.Column(db.Text, nullable=False)
-    raum = db.Column(db.String(50), nullable=False)

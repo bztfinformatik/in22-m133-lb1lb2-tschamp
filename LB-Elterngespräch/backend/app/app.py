@@ -1,5 +1,4 @@
 import os
-
 from flask import Flask
 from model.models import db
 from controllers.index import index_blueprint
