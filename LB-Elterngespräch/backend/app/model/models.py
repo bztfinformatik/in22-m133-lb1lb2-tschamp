@@ -1,8 +1,6 @@
-# coding: utf-8
+# backend/app/model/models.py
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
-from model.ACCESS import ACCESS
-
+from flask_login import UserMixin
 
 db = SQLAlchemy()
 
@@ -30,33 +28,24 @@ class Product(db.Model):
 
     productline = db.relationship('Productline', primaryjoin='Product.productLine == Productline.productLine', backref='products')
 
-class User(db.Model, UserMixin):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False, unique=True)
-    password = db.Column(db.String(80), nullable=False)
-    access = db.Column(db.SmallInteger, nullable=False, default=0)
+    username = db.Column(db.String(150), nullable=False, unique=True)
+    password = db.Column(db.String(150), nullable=False)
+    role = db.Column(db.String(50), nullable=False, default="parent")  # parent, teacher, admin
+    teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Stammlehrer für Eltern
 
-    def is_admin(self):
-        return self.access == ACCESS['admin']
-    
-    def is_teacher(self):
-        return self.access == ACCESS['lehrer']
+    # Relation für Lehrer
+    teacher = db.relationship("User", remote_side=[id], backref="students")
 
-    def is_guest(self):
-        return self.access == ACCESS['guest']
-
-    def allowed(self, access_level):
-        return self.access >= access_level
-    
-
-class ElterngespraechTermine(db.Model):
-    __tablename__ = 'elterngespraech_termine'
-    termin_id = db.Column(db.Integer, primary_key=True)
-    lehrer_id = db.Column(db.Integer, nullable=False)
-    schueler_name = db.Column(db.String(30), nullable=False)
-    datum = db.Column(db.Date, nullable=False)
-    uhrzeit = db.Column(db.Time, nullable=False)
-    dauer_minuten = db.Column(db.Integer, nullable=False)
-    status = db.Column(db.String(20), nullable=False)
-    raum = db.Column(db.String(20), nullable=False)
-    notizen = db.Column(db.Text, nullable=False)
+class Termin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(150), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    time = db.Column(db.Time, nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    # Beziehungen
+    teacher = db.relationship("User", foreign_keys=[teacher_id], backref="termine")
+    parent = db.relationship("User", foreign_keys=[parent_id])

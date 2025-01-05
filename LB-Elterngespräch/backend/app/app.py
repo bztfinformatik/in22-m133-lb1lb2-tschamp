@@ -6,6 +6,9 @@ from controllers.products import products_blueprint
 from controllers.help import help_blueprint
 from controllers.user import users_blueprint
 from controllers.termine import termine_blueprint
+from controllers.dashboard import admin_dashboard_blueprint
+from controllers.dashboard import teacher_dashboard_blueprint
+from controllers.dashboard import parent_dashboard_blueprint
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from model.models import User
 from flask_bcrypt import Bcrypt
@@ -41,4 +44,6 @@ app.register_blueprint(products_blueprint)
 app.register_blueprint(users_blueprint)
 app.register_blueprint(help_blueprint)
 app.register_blueprint(termine_blueprint)
-
+app.register_blueprint(admin_dashboard_blueprint)
+app.register_blueprint(teacher_dashboard_blueprint)
+app.register_blueprint(parent_dashboard_blueprint)
