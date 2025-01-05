@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container mt-4">
+    <h1>Admin - Terminverwaltung</h1>
+    
+    <!-- Termin erstellen Button -->
+    <div class="mb-3">
+        <a href="{{ url_for('admin_dashboard_blueprint.create_termin') }}" class="btn btn-primary">Termin erstellen</a>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Titel</th>
+                <th>Beschreibung</th>
+                <th>Datum</th>
+                <th>Uhrzeit</th>
+                <th>Lehrer</th>
+                <th>Aktionen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for termin in termine %}
+            <tr>
+                <td>{{ termin.title }}</td>
+                <td>{{ termin.description }}</td>
+                <td>{{ termin.date }}</td>
+                <td>{{ termin.time }}</td>
+                <td>{{ termin.teacher.username }}</td>
+                <td>
+                    <a href="{{ url_for('admin_dashboard_blueprint.edit_termin', termin_id=termin.id) }}" class="btn btn-warning btn-sm">Bearbeiten</a>
+                    <form action="{{ url_for('admin_dashboard_blueprint.delete_termin', termin_id=termin.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Löschen</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
