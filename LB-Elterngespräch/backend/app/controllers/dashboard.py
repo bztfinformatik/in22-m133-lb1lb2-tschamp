@@ -286,4 +286,31 @@ def parent_dashboard():
         flash("Access denied!", "danger")
         return redirect(url_for('index_blueprint.index'))
 
-    return render_template('dashboards/parent_dashboard.html')
+    termine = Termin.query.filter_by(parent_id=None).all()
+
+    form = DeleteTerminForm()
+
+    return render_template('dashboards/parent_dashboard.html', termine=termine, form=form)
+
+
+@parent_dashboard_blueprint.route("/parent/dashboard/claim_termin/<int:termin_id>", methods=["POST"])
+@login_required
+def claim_termin(termin_id):
+    if current_user.role != "parent":
+        flash("Access denied!", "danger")
+        return redirect(url_for('index_blueprint.index'))
+
+    termin = Termin.query.get(termin_id)
+    if not termin:
+        flash("Termin not found.", "danger")
+        return redirect(url_for('parent_dashboard_blueprint.parent_dashboard'))
+
+    if termin.parent_id is not None:
+        flash("Termin already claimed.", "danger")
+        return redirect(url_for('parent_dashboard_blueprint.parent_dashboard'))
+
+    termin.parent_id = current_user.id
+    db.session.commit()
+    flash("Termin successfully claimed!", "success")
+    return redirect(url_for('parent_dashboard_blueprint.parent_dashboard'))
+

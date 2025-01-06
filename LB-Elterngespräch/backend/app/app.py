@@ -2,7 +2,6 @@ import os
 from flask import Flask
 from model.models import db
 from controllers.index import index_blueprint
-from controllers.products import products_blueprint
 from controllers.help import help_blueprint
 from controllers.user import users_blueprint
 from controllers.termine import termine_blueprint
@@ -40,7 +39,6 @@ db.init_app(app)
 
 # hier blueprint registrieren
 app.register_blueprint(index_blueprint)
-app.register_blueprint(products_blueprint)
 app.register_blueprint(users_blueprint)
 app.register_blueprint(help_blueprint)
 app.register_blueprint(termine_blueprint)

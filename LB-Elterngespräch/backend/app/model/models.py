@@ -45,7 +45,8 @@ class Termin(db.Model):
     teacher_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     time = db.Column(db.Time, nullable=False)
-    parent_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    # Beziehungen
+    parent_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)  # Parent claiming the Termin
+
     teacher = db.relationship("User", foreign_keys=[teacher_id], backref="termine")
-    parent = db.relationship("User", foreign_keys=[parent_id])
+    parent = db.relationship("User", foreign_keys=[parent_id])  # Relation to Parent User
+

@@ -15,6 +15,7 @@
                 <th>Description</th>
                 <th>Date</th>
                 <th>Time</th>
+                <th>Geclaimed von</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -25,6 +26,13 @@
                 <td>{{ termin.description }}</td>
                 <td>{{ termin.date.strftime('%Y-%m-%d') }}</td>
                 <td>{{ termin.time.strftime('%H:%M:%S') }}</td>
+                <td>
+                    {% if termin.parent %}
+                        {{ termin.parent.username }}
+                    {% else %}
+                        Nicht geclaimed
+                    {% endif %}
+                </td>
                 <td>
                     <a href="{{ url_for('teacher_dashboard_blueprint.edit_termin', termin_id=termin.id) }}" class="btn btn-warning btn-sm">Bearbeiten</a>
                     <form action="{{ url_for('teacher_dashboard_blueprint.delete_termin', termin_id=termin.id) }}" method="POST" style="display:inline;">

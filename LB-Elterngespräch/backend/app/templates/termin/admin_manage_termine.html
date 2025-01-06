@@ -17,6 +17,7 @@
                 <th>Datum</th>
                 <th>Uhrzeit</th>
                 <th>Beschreibung</th>
+                <th>Geclaimed von</th>
                 <th>Aktionen</th>
             </tr>
         </thead>
@@ -30,9 +31,16 @@
                 <td>{{ termin.time }}</td>
                 <td>{{ termin.description }}</td>
                 <td>
+                    {% if termin.parent %}
+                        {{ termin.parent.username }}
+                    {% else %}
+                        Nicht geclaimed
+                    {% endif %}
+                </td>
+                <td>
                     <a href="{{ url_for('admin_dashboard_blueprint.edit_termin', termin_id=termin.id) }}" class="btn btn-warning btn-sm">Bearbeiten</a>
                     <form action="{{ url_for('admin_dashboard_blueprint.delete_termin', termin_id=termin.id) }}" method="POST" style="display:inline;">
-                        {{ form.csrf_token }} <!-- CSRF-Token einfügen -->
+                        {{ form.csrf_token }}
                         <button type="submit" class="btn btn-danger btn-sm">Löschen</button>
                     </form>
                 </td>

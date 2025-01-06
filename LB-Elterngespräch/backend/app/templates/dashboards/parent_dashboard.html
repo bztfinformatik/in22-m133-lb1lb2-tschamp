@@ -1,12 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parent Dashboard</title>
-</head>
-<body>
-    <h1>Parent Dashboard</h1>
-    <p>Welcome, {{ current_user.username }}! You can view and book appointments with teachers.</p>
-</body>
-</html>
+{% extends "base.html" %}
+{% block body %}
+<div class="container mt-4">
+    <h1>Parent - Terminübersicht</h1>
+
+    {% if termine %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Titel</th>
+                <th>Lehrer</th>
+                <th>Datum</th>
+                <th>Uhrzeit</th>
+                <th>Aktionen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for termin in termine %}
+            <tr>
+                <td>{{ termin.id }}</td>
+                <td>{{ termin.title }}</td>
+                <td>{{ termin.teacher.username }}</td>
+                <td>{{ termin.date }}</td>
+                <td>{{ termin.time }}</td>
+                <td>
+                    <form action="{{ url_for('parent_dashboard_blueprint.claim_termin', termin_id=termin.id) }}" method="POST">
+                        {{ form.csrf_token }}
+                        <button type="submit" class="btn btn-success btn-sm">Claimen</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Keine Termine verfügbar.</p>
+    {% endif %}
+</div>
+{% endblock %}
