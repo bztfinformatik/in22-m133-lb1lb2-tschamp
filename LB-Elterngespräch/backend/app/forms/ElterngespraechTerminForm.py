@@ -6,4 +6,4 @@ class ElterngespraechTerminForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired(), Length(max=150)])
     description = TextAreaField("Description", validators=[Length(max=500)])
     date = DateField("Date", format='%Y-%m-%d', validators=[DataRequired()])
-    time = TimeField("Time", format='%H:%M', validators=[DataRequired()])
+    time = TimeField("Time", format='%H:%M:%S', validators=[DataRequired()])

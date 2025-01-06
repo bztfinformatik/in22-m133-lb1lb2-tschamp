@@ -5,31 +5,34 @@
     
     <!-- Termin erstellen Button -->
     <div class="mb-3">
-        <a href="{{ url_for('admin_dashboard_blueprint.create_termin') }}" class="btn btn-primary">Termin erstellen</a>
+        <a href="{{ url_for('admin_dashboard_blueprint.admin_create_termin') }}" class="btn btn-primary">Termin erstellen</a>
     </div>
 
     <table class="table">
         <thead>
             <tr>
+                <th>ID</th>
                 <th>Titel</th>
-                <th>Beschreibung</th>
+                <th>Lehrer</th>
                 <th>Datum</th>
                 <th>Uhrzeit</th>
-                <th>Lehrer</th>
+                <th>Beschreibung</th>
                 <th>Aktionen</th>
             </tr>
         </thead>
         <tbody>
             {% for termin in termine %}
             <tr>
+                <td>{{ termin.id }}</td>
                 <td>{{ termin.title }}</td>
-                <td>{{ termin.description }}</td>
+                <td>{{ termin.teacher.username }}</td>
                 <td>{{ termin.date }}</td>
                 <td>{{ termin.time }}</td>
-                <td>{{ termin.teacher.username }}</td>
+                <td>{{ termin.description }}</td>
                 <td>
                     <a href="{{ url_for('admin_dashboard_blueprint.edit_termin', termin_id=termin.id) }}" class="btn btn-warning btn-sm">Bearbeiten</a>
                     <form action="{{ url_for('admin_dashboard_blueprint.delete_termin', termin_id=termin.id) }}" method="POST" style="display:inline;">
+                        {{ form.csrf_token }} <!-- CSRF-Token einfügen -->
                         <button type="submit" class="btn btn-danger btn-sm">Löschen</button>
                     </form>
                 </td>

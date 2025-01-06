@@ -26,11 +26,11 @@
                 <td>{{ termin.date.strftime('%Y-%m-%d') }}</td>
                 <td>{{ termin.time.strftime('%H:%M:%S') }}</td>
                 <td>
+                    <a href="{{ url_for('teacher_dashboard_blueprint.edit_termin', termin_id=termin.id) }}" class="btn btn-warning btn-sm">Bearbeiten</a>
                     <form action="{{ url_for('teacher_dashboard_blueprint.delete_termin', termin_id=termin.id) }}" method="POST" style="display:inline;">
                         {{ delete_form.hidden_tag() }}
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Löschen</button>
                     </form>
-                    <a href="{{ url_for('teacher_dashboard_blueprint.edit_termin', termin_id=termin.id) }}" class="btn btn-warning btn-sm">Edit</a>
                 </td>
             </tr>
             {% endfor %}

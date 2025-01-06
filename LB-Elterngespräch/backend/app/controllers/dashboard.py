@@ -25,9 +25,10 @@ def admin_manage_termine():
         flash("Access denied!", "danger")
         return redirect(url_for('index_blueprint.index'))
 
-    # Alle Termine abrufen
     termine = Termin.query.all()
-    return render_template('termin/admin_manage_termine.html', termine=termine)
+    delete_form = DeleteTerminForm()  # Initialisiere das Formular
+    return render_template('termin/admin_manage_termine.html', termine=termine, form=delete_form)
+
 
 
 @admin_dashboard_blueprint.route("/admin/dashboard/users", methods=["GET"])
@@ -116,7 +117,7 @@ def edit_termin(termin_id):
     termin = Termin.query.filter_by(id=termin_id, teacher_id=current_user.id).first()
     if not termin:
         flash("Termin not found or access denied.", "danger")
-        return redirect(url_for('admin_dashboard_blueprint.admin_dashboard'))
+        return redirect(url_for('admin_dashboard_blueprint.admin_manage_termine'))
 
     form = ElterngespraechTerminForm(obj=termin)
 
@@ -128,7 +129,7 @@ def edit_termin(termin_id):
 
         db.session.commit()
         flash("Termin successfully updated!", "success")
-        return redirect(url_for('admin_dashboard_blueprint.admin_dashboard'))
+        return redirect(url_for('admin_dashboard_blueprint.admin_manage_termine'))
 
     return render_template("termin/edit_termin.html", form=form, termin=termin)
 
@@ -136,24 +137,29 @@ def edit_termin(termin_id):
 @admin_dashboard_blueprint.route("/admin/dashboard/delete_termin/<int:termin_id>", methods=["POST"])
 @login_required
 def delete_termin(termin_id):
-    if current_user.role != "admin":
+    if current_user.role not in ["admin", "teacher"]:
         flash("Access denied!", "danger")
         return redirect(url_for('index_blueprint.index'))
 
     form = DeleteTerminForm(request.form)
     if not form.validate_on_submit():
         flash("Invalid CSRF token.", "danger")
-        return redirect(url_for('admin_dashboard_blueprint.admin_dashboard'))
+        return redirect(url_for('admin_dashboard_blueprint.admin_manage_termine'))
 
-    termin = Termin.query.filter_by(id=termin_id, teacher_id=current_user.id).first()
+    if current_user.role == "admin":
+        termin = Termin.query.get(termin_id)  # Admin darf alle Termine löschen
+    else:
+        termin = Termin.query.filter_by(id=termin_id, teacher_id=current_user.id).first()  # Lehrer nur ihre eigenen
+
     if not termin:
         flash("Termin not found or access denied.", "danger")
-        return redirect(url_for('admin_dashboard_blueprint.admin_dashboard'))
+        return redirect(url_for('admin_dashboard_blueprint.admin_manage_termine'))
 
     db.session.delete(termin)
     db.session.commit()
     flash("Termin successfully deleted!", "success")
-    return redirect(url_for('admin_dashboard_blueprint.admin_dashboard'))
+    return redirect(url_for('admin_dashboard_blueprint.admin_manage_termine'))
+
 
 @admin_dashboard_blueprint.route("/admin/dashboard/create_termin", methods=["GET", "POST"])
 @login_required
